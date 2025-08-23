@@ -3,7 +3,6 @@ package com.dkapps.grokchef.ui.home
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -35,7 +34,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.dkapps.grokchef.BuildConfig
 import com.dkapps.grokchef.R
-import com.dkapps.grokchef.ui.Screens
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -132,7 +130,7 @@ fun HomeScreen(
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
             )
             Icon(
-                painter = painterResource(id = R.drawable.grok_black),
+                painter = painterResource(id = R.drawable.grok_background),
                 contentDescription = stringResource(R.string.grok_icon_desc),
                 modifier = Modifier.fillMaxWidth(),
                 tint = Color.Black.copy(alpha = 0.5f)

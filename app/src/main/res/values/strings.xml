@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">GrokChef</string>
+    <string name="capture_prompt">Capture a photo of ingredients to begin.</string>
+    <string name="title">Grok Chef</string>
+    <string name="grok_icon_desc">Background Grok logo.</string>
+    <string name="no_ingredients_found">No ingredients found.</string>
+</resources>

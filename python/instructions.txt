@@ -1,0 +1,4 @@
+# run virtual environment to test X/Grok API on Python.
+# Set API Key to "XAI_API_KEY"
+python3 -m venv .venv
+source .venv/bin/activate

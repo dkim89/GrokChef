@@ -12,10 +12,8 @@ import com.dkapps.grokchef.ui.ingredients.IngredientsScreen
 import com.dkapps.grokchef.ui.theme.ApplicationTheme
 
 /**
- * Destinations used in the [GrokChefApp].
+ * NavHost & App routing setup used in the [GrokChefApp].
  */
-
-
 @Composable
 fun GrokChefApp() {
     ApplicationTheme {

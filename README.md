@@ -9,6 +9,8 @@ Building using modern Android development tools such as Jetpack Compose, Android
 
 ![Initial Demo](https://github.com/dkim89/GrokChef/blob/main/demo/demo-gif.gif)
 
+*Request takes about ~20-30 seconds from X.ai to process the image sent.*
+
 ## Build Instructions
 
 In order to build the application to access X.AI APIs, you will need to signup for an account on https://x.ai/, generate an API key, and include it to your project.
@@ -28,3 +30,7 @@ xai.api.key=YOUR_API_KEY
 # .gitignore
 /local.properties
 ```
+
+## Python Tests
+
+Attached to this repo under `Python/` directory contains python scripts used to test the web APIs.

@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
  * This structure is typical for both text-only and multi-modal (image understanding) completions.
  * https://docs.x.ai/docs/guides/image-understanding
  */
-data class GrokImageCompletionResponse(
+data class GrokChatCompletionResponse(
     val id: String,
     @SerializedName("object")
     val responseObject: String, // Should be "chat.completion"

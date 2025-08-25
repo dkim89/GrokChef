@@ -1,7 +1,7 @@
 package com.dkapps.grokchef.data.api
 
-import com.dkapps.grokchef.data.model.GrokImageCompletionRequest
-import com.dkapps.grokchef.data.model.GrokImageCompletionResponse
+import com.dkapps.grokchef.data.model.GrokChatCompletionRequest
+import com.dkapps.grokchef.data.model.GrokChatCompletionResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -13,5 +13,5 @@ interface XApiService {
      */
     @POST("/v1/chat/completions")
     suspend fun postChatCompletion(
-        @Body request: GrokImageCompletionRequest): Response<GrokImageCompletionResponse>
+        @Body request: GrokChatCompletionRequest): Response<GrokChatCompletionResponse>
 }

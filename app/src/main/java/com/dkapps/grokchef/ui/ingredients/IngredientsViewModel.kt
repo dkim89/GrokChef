@@ -93,6 +93,7 @@ class IngredientsViewModel @Inject constructor(
     }
 
     private suspend fun generateIngredients(base64Image: String) {
+        // Notify UI that request is taking longer than expected.
         val longRunningJob = viewModelScope.launch {
             delay(LONG_REQUEST_WARNING_MILLIS)
             _uiState.update {
@@ -104,7 +105,7 @@ class IngredientsViewModel @Inject constructor(
             }
         }
         try {
-            val response = xRepository.postImageUnderstandingIngredients(base64Image)
+            val response = xRepository.postFoodImageUnderstandingChat(base64Image)
             if (response.isSuccessful) {
                 response.body()?.let { responseBody ->
                     if (responseBody.choices.isNotEmpty()) {

@@ -5,4 +5,5 @@
     <string name="grok_icon_desc">Background Grok logo.</string>
     <string name="no_ingredients_found">No ingredients found.</string>
     <string name="capture_image_button">Capture image</string>
+    <string name="recipe_button">Get recipe from list of ingredients.</string>
 </resources>

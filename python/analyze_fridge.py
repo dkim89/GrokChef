@@ -36,7 +36,7 @@ print(response.content + "\n" + "Taking ingredients to find a recipe...\n")
 
 chat.append(
     user(
-        "Can you show me a food recipe using the list of ingredients:\n" + response.content))
+        "Can you show me a food recipe in with html body tags, not including <body> tags, using the following list of ingredients: " + response.content))
 
 response2 = chat.sample()
 print(response2.content)

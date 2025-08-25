@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
  * supporting both text and image input for multi-modal understanding.
  * https://docs.x.ai/docs/guides/image-understanding
  */
-data class GrokImageCompletionRequest(
+data class GrokChatCompletionRequest(
     val model: String, // e.g., "grok-4" or the specific image model name
     @SerializedName("messages") val messages: List<Message>
 )

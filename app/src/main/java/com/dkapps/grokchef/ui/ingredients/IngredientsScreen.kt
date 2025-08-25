@@ -35,11 +35,30 @@ fun IngredientsScreen(
             modifier = modifier.fillMaxSize()
         )
 
-        is IngredientsUiState.Success -> IngredientsContent(
-            ingredients = s.ingredients,
-            onRemove = { ingredient -> ingredientsViewModel.removeIngredient(ingredient) },
-            modifier = modifier.fillMaxSize()
-        )
+        is IngredientsUiState.Success ->
+            Scaffold(modifier = modifier.fillMaxSize()) { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    Text(
+                        text = "Ingredients:",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                    Spacer(Modifier.padding(bottom = 8.dp))
+                    LazyColumn(modifier = modifier) {
+                        items(s.ingredients) { item ->
+                            IngredientListItem(
+                                ingredient = item,
+                                onRemove = { ingredientsViewModel.removeIngredient(item) },
+                                modifier = Modifier.animateItem()
+                            )
+                        }
+                    }
+                }
+            }
 
         is IngredientsUiState.Error -> ErrorScreen(
             errorMessage = s.errorMessage,
@@ -65,31 +84,7 @@ fun IngredientsContent(
     onRemove: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(modifier = modifier.fillMaxSize()) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            Text(
-                text = "Ingredients:",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(8.dp)
-            )
-            Spacer(Modifier.padding(bottom = 8.dp))
-            LazyColumn(modifier = modifier.fillMaxSize()) {
-                items(items = ingredients) { ingredient ->
-                    IngredientListItem(
-                        ingredient = ingredient,
-                        onRemove = {
-                            onRemove(ingredient)
-                        },
-                        modifier = Modifier.animateItem()
-                    )
-                }
-            }
-        }
-    }
+
 }
 
 @Preview

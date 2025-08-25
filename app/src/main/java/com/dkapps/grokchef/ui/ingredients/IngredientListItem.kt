@@ -1,12 +1,9 @@
 package com.dkapps.grokchef.ui.ingredients
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
@@ -14,11 +11,10 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.dkapps.grokchef.ui.theme.ApplicationTheme
 
 @Composable
@@ -27,28 +23,26 @@ fun IngredientListItem(
     onRemove: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val swipeToDismissBoxState = rememberSwipeToDismissBoxState(
-        confirmValueChange = {
-            when(it) {
-                SwipeToDismissBoxValue.StartToEnd,
-                SwipeToDismissBoxValue.EndToStart -> onRemove(ingredient)
-                SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
-            }
-            return@rememberSwipeToDismissBoxState true
-        }
-    )
+    val swipeState = rememberSwipeToDismissBoxState()
 
     SwipeToDismissBox(
-        state = swipeToDismissBoxState,
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
+        state = swipeState,
         backgroundContent = {
-            when (swipeToDismissBoxState.dismissDirection) {
-                SwipeToDismissBoxValue.StartToEnd -> DeleteIcon(Alignment.CenterStart)
-                SwipeToDismissBoxValue.EndToStart -> DeleteIcon(Alignment.CenterEnd)
-                SwipeToDismissBoxValue.Settled -> {}
-            }
-        }
-    ) {
+            val color by animateColorAsState(
+                targetValue = when (swipeState.targetValue) {
+                    SwipeToDismissBoxValue.Settled -> Color.LightGray
+                    SwipeToDismissBoxValue.StartToEnd -> Color.Red
+                    SwipeToDismissBoxValue.EndToStart -> Color.Red
+                },
+                label = "swipe"
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color)
+            )
+        }) {
         ListItem(
             headlineContent = {
                 Text(
@@ -58,19 +52,19 @@ fun IngredientListItem(
             }
         )
     }
-}
 
-@Composable
-fun DeleteIcon(alignment: Alignment) {
-    Icon(
-        imageVector = Icons.Default.Delete,
-        contentDescription = "Remove item",
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Red)
-            .wrapContentSize(alignment)
-            .padding(12.dp)
-    )
+    when (swipeState.currentValue) {
+        SwipeToDismissBoxValue.EndToStart -> {
+            onRemove(ingredient)
+        }
+
+        SwipeToDismissBoxValue.StartToEnd -> {
+            onRemove(ingredient)
+        }
+
+        SwipeToDismissBoxValue.Settled -> {
+        }
+    }
 }
 
 @Preview

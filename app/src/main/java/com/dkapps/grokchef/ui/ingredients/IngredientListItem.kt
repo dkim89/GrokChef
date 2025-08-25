@@ -11,6 +11,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,15 +56,20 @@ fun IngredientListItem(
 
     when (swipeState.currentValue) {
         SwipeToDismissBoxValue.EndToStart -> {
-            onRemove(ingredient)
+            LaunchedEffect(swipeState.currentValue) {
+                onRemove(ingredient)
+                swipeState.reset()
+            }
         }
 
         SwipeToDismissBoxValue.StartToEnd -> {
-            onRemove(ingredient)
+            LaunchedEffect(swipeState.currentValue) {
+                onRemove(ingredient)
+                swipeState.reset()
+            }
         }
 
-        SwipeToDismissBoxValue.Settled -> {
-        }
+        SwipeToDismissBoxValue.Settled -> {}
     }
 }
 

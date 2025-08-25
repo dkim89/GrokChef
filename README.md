@@ -7,7 +7,7 @@ Building using modern Android development tools such as Jetpack Compose, Android
 
 ## Demo
 
-![Initial Demo](https://github.com/dkim89/GrokChef/demo/demo.gif)
+![Initial Demo](https://github.com/dkim89/GrokChef/blob/main/demo/demo-gif.gif)
 
 ## Build Instructions
 

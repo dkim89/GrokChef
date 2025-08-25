@@ -109,7 +109,7 @@ fun HomeScreen(
         }
     }
 
-    Scaffold( // Wrap content in Scaffold
+    Scaffold(
         modifier = modifier.fillMaxSize(),
         floatingActionButton = {
             // Only show the FAB if no image has been taken yet.
@@ -117,11 +117,11 @@ fun HomeScreen(
                 CameraButton(onClick = onCameraFabClick)
             }
         }
-    ) { paddingValues -> // Add paddingValues to the content lambda
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues), // Apply padding to the Column
+                .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

@@ -142,6 +142,14 @@ class IngredientsViewModel @Inject constructor(
         }
     }
 
+    fun removeIngredient(ingredientToRemove: String) {
+        val currentState = _uiState.value
+        if (currentState is IngredientsUiState.Success) {
+            val updatedIngredients = currentState.ingredients.filter { it != ingredientToRemove }
+            _uiState.update { IngredientsUiState.Success(updatedIngredients) }
+        }
+    }
+
     private fun updateUiStateToError(errorMessage: String) {
         _uiState.update { IngredientsUiState.Error(errorMessage) }
     }

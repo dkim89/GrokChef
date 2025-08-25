@@ -20,12 +20,20 @@ import java.io.IOException
 import javax.inject.Inject
 import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.asStateFlow
+import java.net.SocketTimeoutException
 
-data class IngredientsViewModelState(
-    val isLoading: Boolean = false,
-    val ingredients: List<String> = emptyList(),
-    val errorMessages: List<String> = emptyList()
-)
+sealed interface IngredientsUiState {
+    // Display loading state with text.
+    data class Loading(val loadingMessage: String) : IngredientsUiState
+
+    // Display ingredients on screen.
+    data class Success(val ingredients: List<String>) : IngredientsUiState
+
+    // Display error message on screen.
+    data class Error(val errorMessage: String) : IngredientsUiState
+}
 
 @HiltViewModel
 class IngredientsViewModel @Inject constructor(
@@ -33,29 +41,30 @@ class IngredientsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val application: Application
 ) : ViewModel() {
+    companion object {
+        // Define wait duration before displaying loading state update.
+        const val LONG_REQUEST_WARNING_MILLIS = 10000L // 10S
+    }
+
     val encodedImagePath = savedStateHandle.get<String>("encodedImagePath")
-    private val _viewModelState = MutableStateFlow(IngredientsViewModelState())
-    val uiState: StateFlow<IngredientsViewModelState> = _viewModelState
+    private val _uiState = MutableStateFlow<IngredientsUiState>(
+        IngredientsUiState.Loading(
+            "Analyzing ingredients..."
+        )
+    )
+    val uiState: StateFlow<IngredientsUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            _viewModelState.update { state -> state.copy(isLoading = true) }
             if (encodedImagePath != null) {
                 Uri.decode(encodedImagePath).toUri().let { uri ->
                     val base64Image = readUriContent(application, uri)
-                    Log.d("base64Image", "Base64String: $base64Image")
                     if (base64Image != null) {
                         generateIngredients(base64Image)
                     }
                 }
             } else {
-                _viewModelState.update { state ->
-                    state.copy(
-                        isLoading = false,
-                        ingredients = emptyList(),
-                        errorMessages = listOf("No image URI found.")
-                    )
-                }
+                _uiState.update { IngredientsUiState.Error("No image URI found.") }
             }
         }
     }
@@ -69,61 +78,71 @@ class IngredientsViewModel @Inject constructor(
                 }
             } catch (e: FileNotFoundException) {
                 e.printStackTrace()
-                _viewModelState.update { state ->
-                    state.copy(
-                        isLoading = false,
-                        errorMessages = listOf("Image file not found.")
-                    )
-                }
+                updateUiStateToError("Image file not found.")
                 null
             } catch (e: IOException) {
                 e.printStackTrace()
-                _viewModelState.update { state ->
-                    state.copy(
-                        isLoading = false,
-                        errorMessages = listOf("Could not read image file.")
-                    )
-                }
+                updateUiStateToError("Could not read image file.")
+                null
+            } catch (e: Exception) {
+                e.printStackTrace()
+                updateUiStateToError("Unknown error while reading image.")
                 null
             }
         }
     }
 
     private suspend fun generateIngredients(base64Image: String) {
-        val response = xRepository.postImageUnderstandingIngredients(base64Image)
-        if (response.isSuccessful) {
-            response.body()?.let { responseBody ->
-                if (responseBody.choices.isNotEmpty()) {
-                    val ingredientsContentString = responseBody.choices[0].message.content
-                    Log.d("contentsString", ingredientsContentString)
-                    val ingredientsList = ingredientsContentString.split(",")
-                    _viewModelState.update { state ->
-                        state.copy(
-                            isLoading = false,
-                            ingredients = ingredientsList,
-                            errorMessages = emptyList()
-                        )
-                    }
+        val longRunningJob = viewModelScope.launch {
+            delay(LONG_REQUEST_WARNING_MILLIS)
+            _uiState.update {
+                if (it is IngredientsUiState.Loading) {
+                    IngredientsUiState.Loading("Still analyzing...")
                 } else {
-                    _viewModelState.update { state ->
-                        state.copy(
-                            isLoading = false,
-                            ingredients = emptyList(),
-                            errorMessages = listOf("No ingredient data found in the response.")
-                        )
-                    }
+                    it
                 }
             }
-        } else {
-            // Handle API error (e.g., 4xx, 5xx status codes)
-            val errorMessage = response.errorBody()?.string() ?: "Unknown error occurred"
-            _viewModelState.update { state ->
-                state.copy(
-                    isLoading = false,
-                    ingredients = emptyList(),
-                    errorMessages = listOf("Failed to generate ingredients: $errorMessage")
-                )
-            }
         }
+        try {
+            val response = xRepository.postImageUnderstandingIngredients(base64Image)
+            if (response.isSuccessful) {
+                response.body()?.let { responseBody ->
+                    if (responseBody.choices.isNotEmpty()) {
+                        val ingredientsList =
+                            responseBody.choices[0].message.content
+                                .split(",")
+                                .map { it.trim() }
+                                .filter { it.isNotBlank() }
+                        _uiState.update { IngredientsUiState.Success(ingredientsList) }
+                    } else {
+                        updateUiStateToError("No ingredients found while searching ingredients.")
+                    }
+                }
+            } else {
+                // Handle API error returned by the server (e.g., 4xx, 5xx status codes).
+                val errorMessage =
+                    response.errorBody()?.string() ?: "Unknown error occurred from server."
+                Log.e("IngredientsViewModel", "API Error: ${response.code()} - $errorMessage")
+                updateUiStateToError("Server failed to generate list of ingredients.")
+            }
+        } catch (e: SocketTimeoutException) {
+            // Network request timed out.
+            e.printStackTrace()
+            updateUiStateToError("Request timed out by server when analyzing ingredients.")
+        } catch (e: IOException) {
+            // Network issues (e.g., no internet, host unreachable).
+            e.printStackTrace()
+            updateUiStateToError("Network error occurred when analyzing ingredients.")
+        } catch (e: Exception) {
+            // Catch any other unexpected network exceptions.
+            e.printStackTrace()
+            updateUiStateToError("An unknown error occurred while analyzing ingredients.")
+        } finally {
+            longRunningJob.cancel()
+        }
+    }
+
+    private fun updateUiStateToError(errorMessage: String) {
+        _uiState.update { IngredientsUiState.Error(errorMessage) }
     }
 }

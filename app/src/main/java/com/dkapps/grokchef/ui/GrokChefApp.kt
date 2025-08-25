@@ -16,7 +16,6 @@ import com.dkapps.grokchef.ui.theme.ApplicationTheme
  */
 @Composable
 fun GrokChefApp() {
-    ApplicationTheme {
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = "home") {
             composable("home") {
@@ -34,5 +33,4 @@ fun GrokChefApp() {
                 IngredientsScreen()
             }
         }
-    }
 }

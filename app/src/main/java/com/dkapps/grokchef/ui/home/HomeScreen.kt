@@ -76,8 +76,7 @@ fun HomeScreen(
         }
     )
 
-    val launchCameraAction = {
-        val uri = getTmpFileUri()
+    val launchCameraAction = { uri: Uri ->
         tempImageUri = uri
         cameraLauncher.launch(uri)
     }
@@ -87,7 +86,7 @@ fun HomeScreen(
         onResult = { isGranted ->
             if (isGranted) {
                 // Permission granted, launch the camera.
-                launchCameraAction()
+                launchCameraAction(getTmpFileUri())
             } else {
                 // Permission denied, show a message to the user.
                 scope.launch {
@@ -102,9 +101,8 @@ fun HomeScreen(
             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
         when (cameraPermissionState) {
             PackageManager.PERMISSION_GRANTED -> {
-                launchCameraAction()
+                launchCameraAction(getTmpFileUri())
             }
-
             else -> {
                 permissionLauncher.launch(Manifest.permission.CAMERA)
             }
@@ -129,13 +127,13 @@ fun HomeScreen(
         ) {
             Text(
                 text = stringResource(R.string.title),
-                fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                style = MaterialTheme.typography.titleLarge,
             )
             GrokIcon(modifier = Modifier.fillMaxWidth())
             Text(
                 modifier = Modifier.padding(top = 4.dp),
                 text = stringResource(R.string.capture_prompt),
-                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
     }
@@ -144,6 +142,6 @@ fun HomeScreen(
 @Composable
 fun CameraButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     FloatingActionButton(onClick = onClick, modifier = modifier) {
-        Icon(Icons.Filled.CameraAlt, contentDescription = "Launch camera")
+        Icon(Icons.Filled.CameraAlt, contentDescription = stringResource(R.string.capture_image_button))
     }
 }

@@ -1,6 +1,5 @@
 package com.dkapps.grokchef.data
 
-import android.util.Log
 import com.dkapps.grokchef.data.api.XApiService
 import com.dkapps.grokchef.data.model.GrokImageCompletionRequest
 import com.dkapps.grokchef.data.model.GrokImageCompletionResponse
@@ -10,6 +9,7 @@ import com.dkapps.grokchef.data.model.Message
 import com.dkapps.grokchef.data.model.TextContentPart
 import retrofit2.Response
 import javax.inject.Inject
+
 class XRepository @Inject constructor(
     private val xApiService: XApiService,
 ) {

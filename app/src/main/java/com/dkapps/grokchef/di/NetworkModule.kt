@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -17,10 +18,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     const val X_BASE_URL = "https://api.x.ai"
+    const val READ_TIMEOUT_SECONDS = 60L
 
     @Provides
     @Singleton
-    fun provideAuthInterceptor() = Interceptor { chain ->
+    fun provideAuthInterceptor(): Interceptor = Interceptor { chain ->
         val request = chain.request()
         val newRequest = request.newBuilder()
             .header("Authorization", "Bearer ${BuildConfig.XAI_INITIAL_API_KEY}")
@@ -30,14 +32,23 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(authInterceptor: Interceptor) = OkHttpClient.Builder()
+    fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor =
+        HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        authInterceptor: Interceptor,
+        httpLoggingInterceptor: HttpLoggingInterceptor // Inject directly
+    ): OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
-        .readTimeout(60, TimeUnit.SECONDS)
+        .addInterceptor(httpLoggingInterceptor) // Use the injected interceptor
+        .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .build()
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient) = Retrofit.Builder()
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
         .client(okHttpClient)
         .baseUrl(X_BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
@@ -45,5 +56,5 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideXApiService(retrofit: Retrofit) = retrofit.create(XApiService::class.java)
+    fun provideXApiService(retrofit: Retrofit): XApiService = retrofit.create(XApiService::class.java)
 }
